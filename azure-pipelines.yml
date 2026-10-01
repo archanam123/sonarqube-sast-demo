@@ -1,0 +1,47 @@
+trigger:
+- main
+
+stages:
+- stage: BuildStage
+  displayName: "Build Stage"
+
+  jobs:
+  - job: InfoJob
+    displayName: "Build Info"
+    pool: server
+    steps:
+    - task: ManualValidation@0
+      timeoutInMinutes: 1
+      inputs:
+        instructions: "Simulated build stage completed."
+        onTimeout: "resume"
+
+- stage: ApprovalStage
+  displayName: "Approval Stage"
+  dependsOn: BuildStage
+
+  jobs:
+  - job: ManualApproval
+    displayName: "Manual Validation Job"
+    pool: server
+    steps:
+    - task: ManualValidation@0
+      timeoutInMinutes: 10
+      inputs:
+        instructions: "Please approve to proceed to deployment stage."
+        onTimeout: "resume"
+
+- stage: DeploymentStage
+  displayName: "Deployment Stage"
+  dependsOn: ApprovalStage
+
+  jobs:
+  - job: DeployInfo
+    displayName: "Deployment Info"
+    pool: server
+    steps:
+    - task: ManualValidation@0
+      timeoutInMinutes: 1
+      inputs:
+        instructions: "Deployment stage executed successfully"
+        onTimeout: "resume"
